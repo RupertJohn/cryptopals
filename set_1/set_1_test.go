@@ -1,6 +1,9 @@
 package set1
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 type hexPair struct {
 	hexString string
@@ -33,4 +36,16 @@ func TestSet1(t *testing.T) {
 			"got", xored,
 		)
 	}
+
+	score := ScoreWord("Hello There")
+	if score != 1.04894 {
+		t.Error(
+			"For 'Hello There'",
+			"expected", 1.04894,
+			"got", score,
+		)
+	}
+
+	decStr, score := DecryptSingleByteCipher("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
+	fmt.Printf("Decrypted: %v\nScore: %v\n", decStr, score)
 }
