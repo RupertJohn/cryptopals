@@ -6,6 +6,8 @@ import (
 	"unicode"
 )
 
+const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 var letterScores = map[rune]float64{
 	'a': 0.08167, 'b': 0.01492, 'c': 0.02782, 'd': 0.04253, 'e': 0.12702, 'f': 0.02228,
 	'g': 0.02015, 'h': 0.06094, 'i': 0.06966, 'j': 0.00153, 'k': 0.00772, 'l': 0.04025,
@@ -55,10 +57,7 @@ func ScoreWord(decStr string) float64 {
 
 // DecryptSingleByteCipher will xor a hex string against a single byte and determine most 'English' word
 func DecryptSingleByteCipher(hexString string) (decStr string, score float64) {
-	alphabet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	hexDecoded, _ := hex.DecodeString(hexString)
-	decStr = ""
-	score = 0
 
 	for _, letter := range alphabet {
 		xored := ""
