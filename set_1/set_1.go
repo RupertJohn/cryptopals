@@ -105,3 +105,12 @@ func FindEncryptedLineInFile(filename string) (decStr string, score float64) {
 	}
 	return decStr, score
 }
+
+// EncryptString will use a repeating key to encrypt a string
+func EncryptString(text string, key string) string {
+	xored := []byte{}
+	for i, v := range text {
+		xored = append(xored, byte(v)^key[i%len(key)])
+	}
+	return hex.EncodeToString(xored)
+}
