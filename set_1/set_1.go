@@ -6,18 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
-	"unicode"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-var letterScores = map[rune]float64{
-	'a': 0.08167, 'b': 0.01492, 'c': 0.02782, 'd': 0.04253, 'e': 0.12702, 'f': 0.02228,
-	'g': 0.02015, 'h': 0.06094, 'i': 0.06966, 'j': 0.00153, 'k': 0.00772, 'l': 0.04025,
-	'm': 0.02406, 'n': 0.06749, 'o': 0.07507, 'p': 0.01929, 'q': 0.00095, 'r': 0.05987,
-	's': 0.06327, 't': 0.09056, 'u': 0.02758, 'v': 0.00978, 'w': 0.02360, 'x': 0.00150,
-	'y': 0.01974, 'z': 0.00074, ' ': 0.2400,
-}
 
 // HexToBase64 takes a hex string and converts it to base 64
 func HexToBase64(hexString string) (string, error) {
@@ -29,13 +20,13 @@ func HexToBase64(hexString string) (string, error) {
 	return encoded, nil
 }
 
-// xor will take two equal length byte arrays and xor the each byte against the other
-func xor(array1, array2 []byte) []byte {
-	xoredSlice := make([]byte, len(array1))
+// Xor will take two byte slices and XOR each byte against the other, looping over the key as needed
+func Xor(stringBytes, keyBytes []byte) []byte {
+	xoredSlice := make([]byte, len(stringBytes))
 
-	for i := range array1 {
-		j := i % len(array2)
-		xoredSlice[i] = array1[i] ^ array2[j]
+	for i := range stringBytes {
+		j := i % len(keyBytes)
+		xoredSlice[i] = stringBytes[i] ^ keyBytes[j]
 	}
 
 	return xoredSlice
@@ -45,16 +36,8 @@ func xor(array1, array2 []byte) []byte {
 func HexXor(hexString1, hexString2 string) string {
 	hexDecoded1, _ := hex.DecodeString(hexString1)
 	hexDecoded2, _ := hex.DecodeString(hexString2)
-	xored := hex.EncodeToString(xor(hexDecoded1, hexDecoded2))
+	xored := hex.EncodeToString(Xor(hexDecoded1, hexDecoded2))
 	return xored
-}
-
-// ScoreWord will provide a score of the English-ness of a word
-func ScoreWord(decStr string) (score float64) {
-	for _, v := range decStr {
-		score += letterScores[unicode.ToLower(v)]
-	}
-	return score
 }
 
 // FreqAnalysis will count the number of English letters in a phrase
@@ -106,11 +89,7 @@ func FindEncryptedLineInFile(filename string) (decStr string, score float64) {
 	return decStr, score
 }
 
-// EncryptString will use a repeating key to encrypt a string
-func EncryptString(text string, key string) string {
-	xored := []byte{}
-	for i, v := range text {
-		xored = append(xored, byte(v)^key[i%len(key)])
-	}
-	return hex.EncodeToString(xored)
+// XorString will use a repeating key to encrypt a string
+func XorString(text string, key string) string {
+	return hex.EncodeToString(Xor([]byte(text), []byte(key)))
 }
