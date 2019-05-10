@@ -48,4 +48,7 @@ func TestSet1(t *testing.T) {
 
 	decStr, score := DecryptSingleByteCipher("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
 	fmt.Printf("Decrypted: %v\nScore: %v\n", decStr, score)
+
+	decStr, score = FindEncryptedLineInFile("4.txt")
+	fmt.Printf("Decrypted: %v\nScore: %v\n", decStr, score)
 }

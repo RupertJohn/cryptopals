@@ -3,10 +3,13 @@ package set1
 import (
 	b64 "encoding/base64"
 	"encoding/hex"
+	"fmt"
+	"io/ioutil"
+	"strings"
 	"unicode"
 )
 
-const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const alphabet = "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 var letterScores = map[rune]float64{
 	'a': 0.08167, 'b': 0.01492, 'c': 0.02782, 'd': 0.04253, 'e': 0.12702, 'f': 0.02228,
@@ -47,11 +50,23 @@ func HexXor(hexString1, hexString2 string) string {
 }
 
 // ScoreWord will provide a score of the English-ness of a word
-func ScoreWord(decStr string) float64 {
-	score := 0.0
+func ScoreWord(decStr string) (score float64) {
 	for _, v := range decStr {
 		score += letterScores[unicode.ToLower(v)]
 	}
+	return score
+}
+
+// FreqAnalysis will count the number of English letters in a phrase
+func FreqAnalysis(decStr string) (score float64) {
+	count := 0
+	for _, v := range decStr {
+		if strings.Contains(alphabet, string(v)) {
+			count++
+		}
+	}
+
+	score = float64(count) / float64(len(decStr))
 	return score
 }
 
@@ -59,19 +74,34 @@ func ScoreWord(decStr string) float64 {
 func DecryptSingleByteCipher(hexString string) (decStr string, score float64) {
 	hexDecoded, _ := hex.DecodeString(hexString)
 
-	for _, letter := range alphabet {
+	for i := 1; i < 256; i++ {
 		xored := ""
 		for _, v := range hexDecoded {
-			xored += string(v ^ byte(letter))
+			xored += string(v ^ byte(i))
 		}
 
-		xoredScore := ScoreWord(xored)
+		xoredScore := FreqAnalysis(xored)
 
 		if xoredScore > score {
-			decStr = xored
-			score = xoredScore
+			decStr, score = xored, xoredScore
 		}
 	}
 
+	return decStr, score
+}
+
+// FindEncryptedLineInFile will open a file and return the most English decrypted string
+func FindEncryptedLineInFile(filename string) (decStr string, score float64) {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Printf("Challenge 4, Set 1: %v\n", err)
+		return decStr, score
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		dec, tempScore := DecryptSingleByteCipher(line)
+		if tempScore > score {
+			decStr, score = dec, tempScore
+		}
+	}
 	return decStr, score
 }
