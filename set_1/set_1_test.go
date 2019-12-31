@@ -51,4 +51,15 @@ func TestSet1(t *testing.T) {
 			"Expected: ", expected,
 		)
 	}
+
+	calculatedDistance := HammingDistance("this is a test", "wokka wokka!!!")
+	expectedDistance := 37
+	if calculatedDistance != expectedDistance {
+		t.Error(
+			"Received: ", calculatedDistance,
+			"Expected: ", expectedDistance,
+		)
+	} else {
+		fmt.Printf("Correctly calculated hamming distance: %v\n", calculatedDistance)
+	}
 }

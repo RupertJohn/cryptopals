@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
+	"math/bits"
 	"strings"
 )
 
@@ -92,4 +93,14 @@ func FindEncryptedLineInFile(filename string) (decStr string, score float64) {
 // XorString will use a repeating key to encrypt a string
 func XorString(text string, key string) string {
 	return hex.EncodeToString(Xor([]byte(text), []byte(key)))
+}
+
+// HammingDistance calculates the bit difference between two strings
+func HammingDistance(string1 string, string2 string) int {
+	xoredString := Xor([]byte(string1), []byte(string2))
+	bitSum := 0
+	for _, xoredValue := range xoredString {
+		bitSum += bits.OnesCount(uint(xoredValue))
+	}
+	return bitSum
 }
