@@ -104,3 +104,55 @@ func HammingDistance(string1 string, string2 string) int {
 	}
 	return bitSum
 }
+
+// QuestionSix is a hacky way of running go tests
+func QuestionSix() (decStr string, score float64) {
+	data, err := ioutil.ReadFile("6.txt")
+	if err != nil {
+		fmt.Printf("Challenge 4, Set 1: %v\n", err)
+		return decStr, score
+	}
+	decrypted, _ := b64.StdEncoding.DecodeString(string(data))
+	// This is the code used to find the most likely key length
+	// The one with the lowest normalised distance is the most likely candidate
+	// The top 3 key lengths were 5,3,2 with scores 1.2, 2 and 2.5 respectively
+	// normHamDist := [39]float64{}
+	// for i := 2; i <= 40; i++ {
+	// 	for j := 0; j < 10; j++ {
+	// 		normHamDist[i-2] += float64(HammingDistance(string(decrypted[0+j*i:i+j*i]), string(decrypted[i+j*i:2*i+j*i])))
+	// 	}
+	// 	normHamDist[i-2] = normHamDist[i-2] / float64((10 * i))
+	// }
+	// fmt.Printf("%v", normHamDist)
+
+	transposed := [40][]byte{}
+	for i := 0; i < 29; i++ {
+		for j, val := range decrypted {
+			if j%29 == i {
+				transposed[i] = append(transposed[i], val)
+			}
+		}
+	}
+	for _, slice := range transposed {
+		var key rune
+		score := 0.0
+		for char := 1; char < 256; char++ {
+			xored := ""
+			for _, val := range slice {
+				xored += string(val ^ byte(char))
+			}
+
+			xoredScore := FreqAnalysis(xored)
+
+			if xoredScore > score {
+				key, score = rune(char), xoredScore
+			}
+		}
+		fmt.Printf("Key: %c", key)
+	}
+	fmt.Printf("\n")
+
+	decStr = string(Xor(decrypted, []byte("Terminator X: Bring the noise")))
+	// fmt.Printf("%v", decStr)
+	return decStr, score
+}

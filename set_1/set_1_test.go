@@ -62,4 +62,6 @@ func TestSet1(t *testing.T) {
 	} else {
 		fmt.Printf("Correctly calculated hamming distance: %v\n", calculatedDistance)
 	}
+
+	QuestionSix()
 }
